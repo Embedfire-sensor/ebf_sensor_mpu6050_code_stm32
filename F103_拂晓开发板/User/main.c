@@ -48,7 +48,7 @@ int main(void)
 	DEBUG_USART_Config();
 printf("加速度：%8d%8d%8d",Acel[0],Acel[1],Acel[2]);
 	//I2C初始化
-	I2cMaster_Init();
+	I2C_Init();
 	//MPU6050初始化
 	MPU6050_Init();
 	

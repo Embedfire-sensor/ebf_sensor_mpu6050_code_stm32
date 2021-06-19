@@ -183,6 +183,7 @@ void EXTI0_IRQHandler(void)
 }
 
 extern uint8_t Rxflag;
+extern UART_HandleTypeDef UartHandle;
 
 void  DEBUG_USART_IRQHandler(void)
 {

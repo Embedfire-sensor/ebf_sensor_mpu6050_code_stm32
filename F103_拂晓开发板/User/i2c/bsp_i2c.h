@@ -2,36 +2,33 @@
 #define	__BSP_I2C_H
 
 #include "stm32f1xx.h"
-#include "./usart/bsp_debug_usart.h"
 
 /*等待超时时间*/
 #define Delay 		HAL_Delay
 
-#define I2Cx_FLAG_TIMEOUT             ((uint32_t) 1000) //0x1100
-#define I2Cx_LONG_TIMEOUT             ((uint32_t) (300 * I2Cx_FLAG_TIMEOUT)) //was300
-/**************************I2C参数定义，I2C1或I2C2********************************/
-#define I2C_OWN_ADDRESS           0x00
+/*设定的MPU6050 IIC设备地址*/
+#define MPU6050_ADDR              0xD0
 
+#define I2CT_FLAG_TIMEOUT         ((uint32_t)0x1000)
+#define I2CT_LONG_TIMEOUT         ((uint32_t)(10 * I2CT_FLAG_TIMEOUT))
 
-#define SENSORS_I2C              		      I2C2
-#define SENSORS_I2C_RCC_CLK_ENABLE()   	 __HAL_RCC_I2C2_CLK_ENABLE()
-#define SENSORS_I2C_FORCE_RESET()    		 __HAL_RCC_I2C2_FORCE_RESET()
-#define SENSORS_I2C_RELEASE_RESET()  		 __HAL_RCC_I2C2_RELEASE_RESET()
+/*I2C引脚*/
+#define MPU6050_I2C_SCL_PIN                  GPIO_PIN_10              
+#define MPU6050_I2C_SCL_GPIO_PORT            GPIOD                     
+#define MPU6050_I2C_SCL_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOD_CLK_ENABLE()
 
-/*引脚定义*/ 
-#define SENSORS_I2C_SCL_GPIO_PORT         GPIOB
-#define SENSORS_I2C_SCL_GPIO_CLK_ENABLE() __HAL_RCC_GPIOB_CLK_ENABLE()
-#define SENSORS_I2C_SCL_GPIO_PIN         	GPIO_PIN_10
- 
-#define SENSORS_I2C_SDA_GPIO_PORT         GPIOB
-#define SENSORS_I2C_SDA_GPIO_CLK_ENABLE()  __HAL_RCC_GPIOB_CLK_ENABLE()
-#define SENSORS_I2C_SDA_GPIO_PIN          GPIO_PIN_11
+#define MPU6050_I2C_SDA_PIN                  GPIO_PIN_11           
+#define MPU6050_I2C_SDA_GPIO_PORT            GPIOD                   
+#define MPU6050_I2C_SDA_GPIO_CLK_ENABLE()    __HAL_RCC_GPIOD_CLK_ENABLE()
 
-#define SENSORS_I2C_AF                  	 GPIO_AF4_I2C2
+//软件IIC使用的宏
+#define I2C_SCL_1()  HAL_GPIO_WritePin(MPU6050_I2C_SCL_GPIO_PORT, MPU6050_I2C_SCL_PIN,GPIO_PIN_SET)		/* SCL = 1 */
+#define I2C_SCL_0()  HAL_GPIO_WritePin(MPU6050_I2C_SCL_GPIO_PORT, MPU6050_I2C_SCL_PIN,GPIO_PIN_RESET)		/* SCL = 0 */
 
+#define I2C_SDA_1()  HAL_GPIO_WritePin(MPU6050_I2C_SDA_GPIO_PORT, MPU6050_I2C_SDA_PIN,GPIO_PIN_SET)		/* SDA = 1 */
+#define I2C_SDA_0()  HAL_GPIO_WritePin(MPU6050_I2C_SDA_GPIO_PORT, MPU6050_I2C_SDA_PIN,GPIO_PIN_RESET)		/* SDA = 0 */
 
-
-
+#define I2C_SDA_READ()  HAL_GPIO_ReadPin(MPU6050_I2C_SDA_GPIO_PORT, MPU6050_I2C_SDA_PIN)	/* 读SDA口线状态 */
 
 /*信息输出*/
 #define I2C_DEBUG_ON         1
@@ -49,20 +46,10 @@
                                          printf("<<-I2C-FUNC->> Func:%s@Line:%d\n",__func__,__LINE__);\
                                        }while(0)
 
-
-																			 
-void I2cMaster_Init(void);
-unsigned short Get_I2C_Retry(void);
-																			 
-int Sensors_I2C_ReadRegister(unsigned char slave_addr,
-                                       unsigned char reg_addr,
-                                       unsigned short len, 
-                                       unsigned char *data_ptr);
-int Sensors_I2C_WriteRegister(unsigned char slave_addr,
-                                        unsigned char reg_addr,
-                                        unsigned short len, 
-                                        unsigned char *data_ptr);
-
-
-#endif /* __BSP_I2C_H */
-
+//函数接口
+void I2C_Init(void);
+uint32_t I2C_WriteBytes(uint8_t ClientAddr,uint8_t* pBuffer,  uint8_t NumByteToWrite);
+uint32_t I2C_ReadBytes(uint8_t ClientAddr,uint8_t* pBuffer, uint16_t NumByteToRead);
+uint32_t Sensor_write(uint8_t reg_add,uint8_t reg_dat);
+uint32_t Sensor_Read(uint8_t reg_add,unsigned char* Read,uint8_t num);
+#endif /* __BSP_I2C */
